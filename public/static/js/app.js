@@ -79,13 +79,87 @@
   globals.require.brunch = true;
 })();
 
+window.require.register("coffee/countdown", function(exports, require, module) {
+  var Countdown,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+
+  Countdown = (function() {
+
+    Countdown.prototype.wedding = 1413086400;
+
+    function Countdown() {
+      this.formatTimeout = __bind(this.formatTimeout, this);
+
+      this.getTimeout = __bind(this.getTimeout, this);
+
+      this.render = __bind(this.render, this);
+      this.render();
+      setInterval(this.render, 1000);
+    }
+
+    Countdown.prototype.render = function() {
+      var time;
+      time = this.formatTimeout(this.getTimeout());
+      return $('.wrap p.countdown').html(time);
+    };
+
+    Countdown.prototype.getTimeout = function() {
+      var days, hours, minutes, months, now, seconds, years;
+      now = moment().unix();
+      seconds = this.wedding - now;
+      years = Math.floor(seconds / 31536000);
+      seconds -= years * 31536000;
+      months = Math.floor(seconds / 2628000);
+      seconds -= months * 2628000;
+      days = Math.floor(seconds / 86400);
+      seconds -= days * 86400;
+      hours = Math.floor(seconds / 3600);
+      seconds -= hours * 3600;
+      minutes = Math.floor(seconds / 60);
+      seconds -= minutes * 60;
+      return {
+        years: years,
+        months: months,
+        days: days,
+        hours: hours,
+        minutes: minutes,
+        seconds: seconds
+      };
+    };
+
+    Countdown.prototype.formatTimeout = function(timeout) {
+      var times;
+      times = [this.formatTime('year', timeout.years), this.formatTime('month', timeout.months), this.formatTime('day', timeout.days), this.formatTime('hour', timeout.hours), this.formatTime('minute', timeout.minutes), this.formatTime('second', timeout.seconds)];
+      return times.join(', ');
+    };
+
+    Countdown.prototype.formatTime = function(frame, val) {
+      var time;
+      time = "" + val + " " + frame;
+      if (val > 1 || val === 0) {
+        time += 's';
+      }
+      return time;
+    };
+
+    return Countdown;
+
+  })();
+
+  module.exports = Countdown;
+  
+});
 window.require.register("coffee/index", function(exports, require, module) {
-  var $;
+  var $, Countdown;
+
+  Countdown = require('./countdown');
 
   $ = jQuery;
 
   $(function() {
-    return console.log('success');
+    var timer;
+    console.log('success');
+    return timer = new Countdown();
   });
   
 });

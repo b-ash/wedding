@@ -1,4 +1,8 @@
+Countdown = require('./countdown')
+
 $ = jQuery
 
 $ ->
-    console.log 'success'
+  console.log 'success'
+
+  timer = new Countdown()

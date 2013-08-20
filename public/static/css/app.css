@@ -246,12 +246,17 @@ td { vertical-align: top; }
   p, h2, h3 { orphans: 3; widows: 3; }
   h2, h3 { page-break-after: avoid; }
 }
-.splash {
+.wrap {
   margin-top: 40px;
 }
-.splash p {
-  font-size: 30px;
+.wrap p {
   font-weight: bold;
   color: #800000;
   text-align: center;
+}
+.wrap .title {
+  font-size: 30px;
+}
+.wrap .countdown {
+  font-size: 20px;
 }
