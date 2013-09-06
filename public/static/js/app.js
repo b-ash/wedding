@@ -100,15 +100,13 @@ window.require.register("coffee/countdown", function(exports, require, module) {
     Countdown.prototype.render = function() {
       var time;
       time = this.formatTimeout(this.getTimeout());
-      return $('.wrap p.countdown').html(time);
+      return $('p.countdown').html(time);
     };
 
     Countdown.prototype.getTimeout = function() {
-      var days, hours, minutes, months, now, seconds, years;
+      var days, hours, minutes, months, now, seconds;
       now = moment().unix();
       seconds = this.wedding - now;
-      years = Math.floor(seconds / 31536000);
-      seconds -= years * 31536000;
       months = Math.floor(seconds / 2628000);
       seconds -= months * 2628000;
       days = Math.floor(seconds / 86400);
@@ -118,7 +116,6 @@ window.require.register("coffee/countdown", function(exports, require, module) {
       minutes = Math.floor(seconds / 60);
       seconds -= minutes * 60;
       return {
-        years: years,
         months: months,
         days: days,
         hours: hours,
@@ -129,7 +126,7 @@ window.require.register("coffee/countdown", function(exports, require, module) {
 
     Countdown.prototype.formatTimeout = function(timeout) {
       var times;
-      times = [this.formatTime('year', timeout.years), this.formatTime('month', timeout.months), this.formatTime('day', timeout.days), this.formatTime('hour', timeout.hours), this.formatTime('minute', timeout.minutes), this.formatTime('second', timeout.seconds)];
+      times = [this.formatTime('month', timeout.months), this.formatTime('day', timeout.days), this.formatTime('hour', timeout.hours), this.formatTime('minute', timeout.minutes), this.formatTime('second', timeout.seconds)];
       return times.join(', ');
     };
 

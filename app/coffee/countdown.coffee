@@ -7,14 +7,14 @@ class Countdown
 
   render: =>
     time = @formatTimeout @getTimeout()
-    $('.wrap p.countdown').html time
+    $('p.countdown').html time
 
   getTimeout: =>
     now = moment().unix()
     seconds = @wedding - now
 
-    years = Math.floor(seconds / 31536000)
-    seconds -= years * 31536000
+    # years = Math.floor(seconds / 31536000)
+    # seconds -= years * 31536000
     months = Math.floor(seconds / 2628000)
     seconds -= months * 2628000
     days = Math.floor(seconds / 86400)
@@ -25,7 +25,7 @@ class Countdown
     seconds -= minutes * 60
 
     {
-      years
+      # years
       months
       days
       hours
@@ -35,7 +35,7 @@ class Countdown
 
   formatTimeout: (timeout) =>
     times = [
-        @formatTime('year', timeout.years)
+        # @formatTime('year', timeout.years)
         @formatTime('month', timeout.months)
         @formatTime('day', timeout.days)
         @formatTime('hour', timeout.hours)
