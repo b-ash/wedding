@@ -155,7 +155,6 @@ window.require.register("coffee/index", function(exports, require, module) {
 
   $(function() {
     var timer;
-    console.log('success');
     return timer = new Countdown();
   });
   
