@@ -147,15 +147,49 @@ window.require.register("coffee/countdown", function(exports, require, module) {
   
 });
 window.require.register("coffee/index", function(exports, require, module) {
-  var $, Countdown;
+  var $, Countdown, Nav;
 
   Countdown = require('./countdown');
+
+  Nav = require('./nav');
 
   $ = jQuery;
 
   $(function() {
-    var timer;
-    return timer = new Countdown();
+    var nav, timer;
+    timer = new Countdown();
+    return nav = new Nav();
   });
+  
+});
+window.require.register("coffee/nav", function(exports, require, module) {
+  var Nav;
+
+  Nav = (function() {
+
+    function Nav() {
+      this.start();
+    }
+
+    Nav.prototype.start = function() {
+      return $(document).delegate('.nav li a', 'click', function(event) {
+        var $target, name;
+        event.preventDefault();
+        $target = $(event.currentTarget);
+        name = $target.attr('href');
+        return $.scrollTo("a[name=\"" + (name.slice(1)) + "\"]", {
+          duration: 500,
+          onAfter: function() {
+            return window.location.hash = name;
+          }
+        });
+      });
+    };
+
+    return Nav;
+
+  })();
+
+  module.exports = Nav;
   
 });

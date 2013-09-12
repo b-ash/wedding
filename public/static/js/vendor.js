@@ -79,6 +79,230 @@
   globals.require.brunch = true;
 })();
 
+// lib/handlebars/base.js
+var Handlebars = {};
+
+Handlebars.VERSION = "1.0.beta.6";
+
+Handlebars.helpers  = {};
+Handlebars.partials = {};
+
+Handlebars.registerHelper = function(name, fn, inverse) {
+  if(inverse) { fn.not = inverse; }
+  this.helpers[name] = fn;
+};
+
+Handlebars.registerPartial = function(name, str) {
+  this.partials[name] = str;
+};
+
+Handlebars.registerHelper('helperMissing', function(arg) {
+  if(arguments.length === 2) {
+    return undefined;
+  } else {
+    throw new Error("Could not find property '" + arg + "'");
+  }
+});
+
+var toString = Object.prototype.toString, functionType = "[object Function]";
+
+Handlebars.registerHelper('blockHelperMissing', function(context, options) {
+  var inverse = options.inverse || function() {}, fn = options.fn;
+
+
+  var ret = "";
+  var type = toString.call(context);
+
+  if(type === functionType) { context = context.call(this); }
+
+  if(context === true) {
+    return fn(this);
+  } else if(context === false || context == null) {
+    return inverse(this);
+  } else if(type === "[object Array]") {
+    if(context.length > 0) {
+      for(var i=0, j=context.length; i<j; i++) {
+        ret = ret + fn(context[i]);
+      }
+    } else {
+      ret = inverse(this);
+    }
+    return ret;
+  } else {
+    return fn(context);
+  }
+});
+
+Handlebars.registerHelper('each', function(context, options) {
+  var fn = options.fn, inverse = options.inverse;
+  var ret = "";
+
+  if(context && context.length > 0) {
+    for(var i=0, j=context.length; i<j; i++) {
+      ret = ret + fn(context[i]);
+    }
+  } else {
+    ret = inverse(this);
+  }
+  return ret;
+});
+
+Handlebars.registerHelper('if', function(context, options) {
+  var type = toString.call(context);
+  if(type === functionType) { context = context.call(this); }
+
+  if(!context || Handlebars.Utils.isEmpty(context)) {
+    return options.inverse(this);
+  } else {
+    return options.fn(this);
+  }
+});
+
+Handlebars.registerHelper('unless', function(context, options) {
+  var fn = options.fn, inverse = options.inverse;
+  options.fn = inverse;
+  options.inverse = fn;
+
+  return Handlebars.helpers['if'].call(this, context, options);
+});
+
+Handlebars.registerHelper('with', function(context, options) {
+  return options.fn(context);
+});
+
+Handlebars.registerHelper('log', function(context) {
+  Handlebars.log(context);
+});
+;
+// lib/handlebars/utils.js
+Handlebars.Exception = function(message) {
+  var tmp = Error.prototype.constructor.apply(this, arguments);
+
+  for (var p in tmp) {
+    if (tmp.hasOwnProperty(p)) { this[p] = tmp[p]; }
+  }
+
+  this.message = tmp.message;
+};
+Handlebars.Exception.prototype = new Error;
+
+// Build out our basic SafeString type
+Handlebars.SafeString = function(string) {
+  this.string = string;
+};
+Handlebars.SafeString.prototype.toString = function() {
+  return this.string.toString();
+};
+
+(function() {
+  var escape = {
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#x27;",
+    "`": "&#x60;"
+  };
+
+  var badChars = /&(?!\w+;)|[<>"'`]/g;
+  var possible = /[&<>"'`]/;
+
+  var escapeChar = function(chr) {
+    return escape[chr] || "&amp;";
+  };
+
+  Handlebars.Utils = {
+    escapeExpression: function(string) {
+      // don't escape SafeStrings, since they're already safe
+      if (string instanceof Handlebars.SafeString) {
+        return string.toString();
+      } else if (string == null || string === false) {
+        return "";
+      }
+
+      if(!possible.test(string)) { return string; }
+      return string.replace(badChars, escapeChar);
+    },
+
+    isEmpty: function(value) {
+      if (typeof value === "undefined") {
+        return true;
+      } else if (value === null) {
+        return true;
+      } else if (value === false) {
+        return true;
+      } else if(Object.prototype.toString.call(value) === "[object Array]" && value.length === 0) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+  };
+})();;
+// lib/handlebars/runtime.js
+Handlebars.VM = {
+  template: function(templateSpec) {
+    // Just add water
+    var container = {
+      escapeExpression: Handlebars.Utils.escapeExpression,
+      invokePartial: Handlebars.VM.invokePartial,
+      programs: [],
+      program: function(i, fn, data) {
+        var programWrapper = this.programs[i];
+        if(data) {
+          return Handlebars.VM.program(fn, data);
+        } else if(programWrapper) {
+          return programWrapper;
+        } else {
+          programWrapper = this.programs[i] = Handlebars.VM.program(fn);
+          return programWrapper;
+        }
+      },
+      programWithDepth: Handlebars.VM.programWithDepth,
+      noop: Handlebars.VM.noop
+    };
+
+    return function(context, options) {
+      options = options || {};
+      return templateSpec.call(container, Handlebars, context, options.helpers, options.partials, options.data);
+    };
+  },
+
+  programWithDepth: function(fn, data, $depth) {
+    var args = Array.prototype.slice.call(arguments, 2);
+
+    return function(context, options) {
+      options = options || {};
+
+      return fn.apply(this, [context, options.data || data].concat(args));
+    };
+  },
+  program: function(fn, data) {
+    return function(context, options) {
+      options = options || {};
+
+      return fn(context, options.data || data);
+    };
+  },
+  noop: function() { return ""; },
+  invokePartial: function(partial, name, context, helpers, partials, data) {
+    options = { helpers: helpers, partials: partials, data: data };
+
+    if(partial === undefined) {
+      throw new Handlebars.Exception("The partial " + name + " could not be found");
+    } else if(partial instanceof Function) {
+      return partial(context, options);
+    } else if (!Handlebars.compile) {
+      throw new Handlebars.Exception("The partial " + name + " could not be compiled when running in runtime-only mode");
+    } else {
+      partials[name] = Handlebars.compile(partial);
+      return partials[name](context, options);
+    }
+  }
+};
+
+Handlebars.template = Handlebars.VM.template;
+;
+;
 /*!
  * jQuery JavaScript Library v1.9.1
  * http://jquery.com/
@@ -9676,230 +9900,13 @@ if ( typeof define === "function" && define.amd && define.amd.jQuery ) {
 }
 
 })( window );;
-// lib/handlebars/base.js
-var Handlebars = {};
-
-Handlebars.VERSION = "1.0.beta.6";
-
-Handlebars.helpers  = {};
-Handlebars.partials = {};
-
-Handlebars.registerHelper = function(name, fn, inverse) {
-  if(inverse) { fn.not = inverse; }
-  this.helpers[name] = fn;
-};
-
-Handlebars.registerPartial = function(name, str) {
-  this.partials[name] = str;
-};
-
-Handlebars.registerHelper('helperMissing', function(arg) {
-  if(arguments.length === 2) {
-    return undefined;
-  } else {
-    throw new Error("Could not find property '" + arg + "'");
-  }
-});
-
-var toString = Object.prototype.toString, functionType = "[object Function]";
-
-Handlebars.registerHelper('blockHelperMissing', function(context, options) {
-  var inverse = options.inverse || function() {}, fn = options.fn;
-
-
-  var ret = "";
-  var type = toString.call(context);
-
-  if(type === functionType) { context = context.call(this); }
-
-  if(context === true) {
-    return fn(this);
-  } else if(context === false || context == null) {
-    return inverse(this);
-  } else if(type === "[object Array]") {
-    if(context.length > 0) {
-      for(var i=0, j=context.length; i<j; i++) {
-        ret = ret + fn(context[i]);
-      }
-    } else {
-      ret = inverse(this);
-    }
-    return ret;
-  } else {
-    return fn(context);
-  }
-});
-
-Handlebars.registerHelper('each', function(context, options) {
-  var fn = options.fn, inverse = options.inverse;
-  var ret = "";
-
-  if(context && context.length > 0) {
-    for(var i=0, j=context.length; i<j; i++) {
-      ret = ret + fn(context[i]);
-    }
-  } else {
-    ret = inverse(this);
-  }
-  return ret;
-});
-
-Handlebars.registerHelper('if', function(context, options) {
-  var type = toString.call(context);
-  if(type === functionType) { context = context.call(this); }
-
-  if(!context || Handlebars.Utils.isEmpty(context)) {
-    return options.inverse(this);
-  } else {
-    return options.fn(this);
-  }
-});
-
-Handlebars.registerHelper('unless', function(context, options) {
-  var fn = options.fn, inverse = options.inverse;
-  options.fn = inverse;
-  options.inverse = fn;
-
-  return Handlebars.helpers['if'].call(this, context, options);
-});
-
-Handlebars.registerHelper('with', function(context, options) {
-  return options.fn(context);
-});
-
-Handlebars.registerHelper('log', function(context) {
-  Handlebars.log(context);
-});
-;
-// lib/handlebars/utils.js
-Handlebars.Exception = function(message) {
-  var tmp = Error.prototype.constructor.apply(this, arguments);
-
-  for (var p in tmp) {
-    if (tmp.hasOwnProperty(p)) { this[p] = tmp[p]; }
-  }
-
-  this.message = tmp.message;
-};
-Handlebars.Exception.prototype = new Error;
-
-// Build out our basic SafeString type
-Handlebars.SafeString = function(string) {
-  this.string = string;
-};
-Handlebars.SafeString.prototype.toString = function() {
-  return this.string.toString();
-};
-
-(function() {
-  var escape = {
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#x27;",
-    "`": "&#x60;"
-  };
-
-  var badChars = /&(?!\w+;)|[<>"'`]/g;
-  var possible = /[&<>"'`]/;
-
-  var escapeChar = function(chr) {
-    return escape[chr] || "&amp;";
-  };
-
-  Handlebars.Utils = {
-    escapeExpression: function(string) {
-      // don't escape SafeStrings, since they're already safe
-      if (string instanceof Handlebars.SafeString) {
-        return string.toString();
-      } else if (string == null || string === false) {
-        return "";
-      }
-
-      if(!possible.test(string)) { return string; }
-      return string.replace(badChars, escapeChar);
-    },
-
-    isEmpty: function(value) {
-      if (typeof value === "undefined") {
-        return true;
-      } else if (value === null) {
-        return true;
-      } else if (value === false) {
-        return true;
-      } else if(Object.prototype.toString.call(value) === "[object Array]" && value.length === 0) {
-        return true;
-      } else {
-        return false;
-      }
-    }
-  };
-})();;
-// lib/handlebars/runtime.js
-Handlebars.VM = {
-  template: function(templateSpec) {
-    // Just add water
-    var container = {
-      escapeExpression: Handlebars.Utils.escapeExpression,
-      invokePartial: Handlebars.VM.invokePartial,
-      programs: [],
-      program: function(i, fn, data) {
-        var programWrapper = this.programs[i];
-        if(data) {
-          return Handlebars.VM.program(fn, data);
-        } else if(programWrapper) {
-          return programWrapper;
-        } else {
-          programWrapper = this.programs[i] = Handlebars.VM.program(fn);
-          return programWrapper;
-        }
-      },
-      programWithDepth: Handlebars.VM.programWithDepth,
-      noop: Handlebars.VM.noop
-    };
-
-    return function(context, options) {
-      options = options || {};
-      return templateSpec.call(container, Handlebars, context, options.helpers, options.partials, options.data);
-    };
-  },
-
-  programWithDepth: function(fn, data, $depth) {
-    var args = Array.prototype.slice.call(arguments, 2);
-
-    return function(context, options) {
-      options = options || {};
-
-      return fn.apply(this, [context, options.data || data].concat(args));
-    };
-  },
-  program: function(fn, data) {
-    return function(context, options) {
-      options = options || {};
-
-      return fn(context, options.data || data);
-    };
-  },
-  noop: function() { return ""; },
-  invokePartial: function(partial, name, context, helpers, partials, data) {
-    options = { helpers: helpers, partials: partials, data: data };
-
-    if(partial === undefined) {
-      throw new Handlebars.Exception("The partial " + name + " could not be found");
-    } else if(partial instanceof Function) {
-      return partial(context, options);
-    } else if (!Handlebars.compile) {
-      throw new Handlebars.Exception("The partial " + name + " could not be compiled when running in runtime-only mode");
-    } else {
-      partials[name] = Handlebars.compile(partial);
-      return partials[name](context, options);
-    }
-  }
-};
-
-Handlebars.template = Handlebars.VM.template;
-;
-;
+/**
+ * Copyright (c) 2007-2012 Ariel Flesler - aflesler(at)gmail(dot)com | http://flesler.blogspot.com
+ * Dual licensed under MIT and GPL.
+ * @author Ariel Flesler
+ * @version 1.4.3.1
+ */
+;(function($){var h=$.scrollTo=function(a,b,c){$(window).scrollTo(a,b,c)};h.defaults={axis:'xy',duration:parseFloat($.fn.jquery)>=1.3?0:1,limit:true};h.window=function(a){return $(window)._scrollable()};$.fn._scrollable=function(){return this.map(function(){var a=this,isWin=!a.nodeName||$.inArray(a.nodeName.toLowerCase(),['iframe','#document','html','body'])!=-1;if(!isWin)return a;var b=(a.contentWindow||a).document||a.ownerDocument||a;return/webkit/i.test(navigator.userAgent)||b.compatMode=='BackCompat'?b.body:b.documentElement})};$.fn.scrollTo=function(e,f,g){if(typeof f=='object'){g=f;f=0}if(typeof g=='function')g={onAfter:g};if(e=='max')e=9e9;g=$.extend({},h.defaults,g);f=f||g.duration;g.queue=g.queue&&g.axis.length>1;if(g.queue)f/=2;g.offset=both(g.offset);g.over=both(g.over);return this._scrollable().each(function(){if(e==null)return;var d=this,$elem=$(d),targ=e,toff,attr={},win=$elem.is('html,body');switch(typeof targ){case'number':case'string':if(/^([+-]=)?\d+(\.\d+)?(px|%)?$/.test(targ)){targ=both(targ);break}targ=$(targ,this);if(!targ.length)return;case'object':if(targ.is||targ.style)toff=(targ=$(targ)).offset()}$.each(g.axis.split(''),function(i,a){var b=a=='x'?'Left':'Top',pos=b.toLowerCase(),key='scroll'+b,old=d[key],max=h.max(d,a);if(toff){attr[key]=toff[pos]+(win?0:old-$elem.offset()[pos]);if(g.margin){attr[key]-=parseInt(targ.css('margin'+b))||0;attr[key]-=parseInt(targ.css('border'+b+'Width'))||0}attr[key]+=g.offset[pos]||0;if(g.over[pos])attr[key]+=targ[a=='x'?'width':'height']()*g.over[pos]}else{var c=targ[pos];attr[key]=c.slice&&c.slice(-1)=='%'?parseFloat(c)/100*max:c}if(g.limit&&/^\d+$/.test(attr[key]))attr[key]=attr[key]<=0?0:Math.min(attr[key],max);if(!i&&g.queue){if(old!=attr[key])animate(g.onAfterFirst);delete attr[key]}});animate(g.onAfter);function animate(a){$elem.animate(attr,f,g.easing,a&&function(){a.call(this,e,g)})}}).end()};h.max=function(a,b){var c=b=='x'?'Width':'Height',scroll='scroll'+c;if(!$(a).is('html,body'))return a[scroll]-$(a)[c.toLowerCase()]();var d='client'+c,html=a.ownerDocument.documentElement,body=a.ownerDocument.body;return Math.max(html[scroll],body[scroll])-Math.min(html[d],body[d])};function both(a){return typeof a=='object'?a:{top:a,left:a}}})(jQuery);;
 // moment.js
 // version : 2.1.0
 // author : Tim Wood
