@@ -1,0 +1,45 @@
+@import nib
+@import constants
+
+.nav
+    position: fixed
+    top: 0
+    left: 0
+    z-index: 100
+
+    width: 100%
+    height: navHeight
+
+    background-color: #1B1B1B
+    background: linear-gradient(top, #111, #232323)
+    box-shadow(1px 0 15px #999)
+
+    .nav-options
+        width: 100%
+        height: navHeight - 10
+        margin: 0 auto 5px
+
+        ul
+            list-style: none
+            padding: 0
+            margin: 12px
+            text-align: center
+
+            li
+                display: inline-block
+                padding: 15px
+                font-size: 1.1em
+                width: 100px
+
+                a
+                    transition(0.4s color)
+                    font-family: Domine, Helvetica, Arial, sans-serif
+
+                    &, a:visited
+                        color: navFontColor
+
+                    &:hover
+                        color: darken(#e1e1e1, 10%)
+
+                    &, a:visited, a:hover
+                        text-decoration: none
