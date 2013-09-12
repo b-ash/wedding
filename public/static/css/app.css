@@ -246,6 +246,9 @@ td { vertical-align: top; }
   p, h2, h3 { orphans: 3; widows: 3; }
   h2, h3 { page-break-after: avoid; }
 }
+::selection {
+  background: #999;
+}
 .content {
   width: 100%;
   margin-top: 80px;
@@ -259,19 +262,55 @@ td { vertical-align: top; }
   text-align: center;
   padding-top: 289px;
 }
+.content > a[name] {
+  display: block;
+  margin-bottom: 90px;
+}
 .content .section {
+  position: relative;
   width: 700px;
-  padding: 50px 20px;
+  padding: 10px 50px 90px;
   margin: 0 auto;
-  height: 350px;
+  min-height: 285px;
   border-bottom: 2px solid #ddd;
 }
 .content .section:last-child {
   border-bottom: 0;
 }
-.content .section > a[name] {
-  display: block;
-  margin-bottom: 90px;
+.content .section ul {
+  list-style: none;
+  margin: 0 0 20px;
+  padding: 0;
+}
+.content .section ul h3 {
+  font-weight: bolder;
+}
+.content .section ul li {
+  padding: 10px 0;
+}
+.content .section div {
+  display: inline-block;
+}
+.content .section div.desc {
+  position: absolute;
+  margin-left: 20px;
+  width: 550px;
+}
+.content .section div.desc p {
+  line-height: 1.5;
+  margin-top: 0;
+}
+.content .section div.pic {
+  overflow: hidden;
+  -webkit-border-radius: 75px;
+  border-radius: 75px;
+}
+.content .section div.pic img {
+  width: 150px;
+  height: 150px;
+}
+.content .section div.bash {
+  margin-top: 25px;
 }
 .wrap {
   margin-top: 40px;
@@ -358,117 +397,4 @@ td { vertical-align: top; }
 .nav .nav-options ul li a a:visited,
 .nav .nav-options ul li a a:hover {
   text-decoration: none;
-}
-@font-face {
-  font-family: 'Domine';
-  font-style: normal;
-  font-weight: 400;
-  src: local('Domine'), local('Domine-Regular'), url("/static/fonts/domine_regular.woff") format('woff');
-}
-@font-face {
-  font-family: 'Raleway Dots';
-  font-style: normal;
-  font-weight: 400;
-  src: local('Raleway Dots'), local('RalewayDots-Regular'), url("/static/fonts/railway_dots.woff") format('woff');
-}
-@font-face {
-  font-family: 'Gilda Display';
-  font-style: normal;
-  font-weight: 400;
-  src: local('Gilda Display'), local('GildaDisplay-Regular'), url("/static/fonts/gilda_display.woff") format('woff');
-}
-.nav {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 100;
-  width: 100%;
-  height: 80px;
-  background-color: #1b1b1b;
-  background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #111), color-stop(1, #232323));
-  background: -webkit-linear-gradient(top, #111 0%, #232323 100%);
-  background: -moz-linear-gradient(top, #111 0%, #232323 100%);
-  background: -o-linear-gradient(top, #111 0%, #232323 100%);
-  background: -ms-linear-gradient(top, #111 0%, #232323 100%);
-  background: linear-gradient(top, #111 0%, #232323 100%);
-  -webkit-box-shadow: 1px 0 15px #999;
-  box-shadow: 1px 0 15px #999;
-}
-.nav .nav-options {
-  width: 100%;
-  height: 70px;
-  margin: 0 auto 5px;
-}
-.nav .nav-options ul {
-  list-style: none;
-  padding: 0;
-  margin: 12px;
-  text-align: center;
-}
-.nav .nav-options ul li {
-  display: inline-block;
-  padding: 15px;
-  font-size: 1.1em;
-  width: 100px;
-}
-.nav .nav-options ul li a {
-  -webkit-transition: 0.4s color;
-  -moz-transition: 0.4s color;
-  -o-transition: 0.4s color;
-  -ms-transition: 0.4s color;
-  transition: 0.4s color;
-  font-family: Domine, Helvetica, Arial, sans-serif;
-}
-.nav .nav-options ul li a,
-.nav .nav-options ul li a a:visited {
-  color: #fff;
-}
-.nav .nav-options ul li a:hover {
-  color: #cbcbcb;
-}
-.nav .nav-options ul li a,
-.nav .nav-options ul li a a:visited,
-.nav .nav-options ul li a a:hover {
-  text-decoration: none;
-}
-.content {
-  width: 100%;
-  margin-top: 80px;
-  font-family: Gilda Display, Helvetica, Arial, sans-serif;
-  font-weight: bold;
-}
-.content .splash-photo {
-  width: 100%;
-  height: 311px;
-  background-color: #f6f6f6;
-  text-align: center;
-  padding-top: 289px;
-}
-.content .section {
-  width: 700px;
-  padding: 50px 20px;
-  margin: 0 auto;
-  height: 350px;
-  border-bottom: 2px solid #ddd;
-}
-.content .section:last-child {
-  border-bottom: 0;
-}
-.content .section > a[name] {
-  display: block;
-  margin-bottom: 90px;
-}
-.wrap {
-  margin-top: 40px;
-}
-.wrap p {
-  font-weight: bold;
-  color: #800000;
-  text-align: center;
-}
-.wrap .title {
-  font-size: 30px;
-}
-.wrap .countdown {
-  font-size: 20px;
 }
