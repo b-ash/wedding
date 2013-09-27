@@ -22,5 +22,5 @@ module.exports.config =
 
     server:
         path: 'app.coffee'
-        port: 5000
+        port: 5050
         base: ''

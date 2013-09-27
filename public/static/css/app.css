@@ -246,6 +246,9 @@ td { vertical-align: top; }
   p, h2, h3 { orphans: 3; widows: 3; }
   h2, h3 { page-break-after: avoid; }
 }
+body {
+  background-color: #fff;
+}
 ::selection {
   background: #999;
 }
@@ -255,12 +258,32 @@ td { vertical-align: top; }
   font-family: Gilda Display, Helvetica, Arial, sans-serif;
   font-weight: bold;
 }
-.content .splash-photo {
+.content .splash-photo,
+.content .name-and-date,
+.content .decoration {
   width: 100%;
+  text-align: center;
+}
+.content .splash-photo {
   height: 311px;
   background-color: #f6f6f6;
-  text-align: center;
   padding-top: 289px;
+}
+.content .name-and-date {
+  height: 100px;
+  padding: 5px;
+  background-color: #f8f4ee;
+  color: #700;
+  text-align: center;
+}
+.content .name-and-date p:first-child {
+  font-weight: bold;
+  font-size: 25px;
+  line-height: 10px;
+}
+.content .decoration {
+  height: 15px;
+  background-color: #c9cabb;
 }
 .content > a[name] {
   display: block;
@@ -325,6 +348,14 @@ td { vertical-align: top; }
 }
 .wrap .countdown {
   font-size: 20px;
+}
+.registries a,
+.registries a:hover,
+.registries a:visited {
+  color: #00f;
+  text-decoration: none;
+  display: block;
+  margin-bottom: 10px;
 }
 @font-face {
   font-family: 'Domine';

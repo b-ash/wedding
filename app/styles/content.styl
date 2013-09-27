@@ -1,6 +1,9 @@
 @import nib
 @import constants
 
+body
+  background-color: bgColor
+
 ::selection
   background: #999
 
@@ -10,14 +13,32 @@
   font-family: Gilda Display, Helvetica, Arial, sans-serif
   font-weight: bold
 
-  .splash-photo
+  .splash-photo, .name-and-date, .decoration
     width: 100%
+    text-align: center
+
+  .splash-photo
     height: 311px  // 500px
 
     // Remove
     background-color: #f6f6f6
-    text-align: center
     padding-top: 289px
+
+  .name-and-date
+    height: 100px
+    padding: 5px
+    background-color: nameAndDate
+    color: maroon
+    text-align: center
+
+    p:first-child
+      font-weight: bold
+      font-size: 25px
+      line-height: 10px
+
+  .decoration
+    height: 15px
+    background-color: decoration
 
   > a[name]
     display: block
@@ -83,3 +104,10 @@
 
   .countdown
     font-size: 20px
+
+.registries
+  a, a:hover, a:visited
+    color: blue
+    text-decoration: none
+    display: block
+    margin-bottom: 10px
