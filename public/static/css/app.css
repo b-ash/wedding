@@ -375,6 +375,19 @@ body {
   font-weight: 400;
   src: local('Gilda Display'), local('GildaDisplay-Regular'), url("/static/fonts/gilda_display.woff") format('woff');
 }
+.footer {
+  height: 80px;
+  background-color: #1b1b1b;
+  color: #fff;
+}
+.footer span {
+  display: block;
+  text-align: center;
+}
+.footer span:first-child {
+  padding-top: 15px;
+  margin-bottom: 10px;
+}
 .nav {
   position: fixed;
   top: 0;
