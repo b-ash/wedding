@@ -1,8 +1,9 @@
 Countdown = require('./countdown')
 Nav = require('./nav')
+Slideshow = require('./slideshow')
 
 $ = jQuery
 
 $ ->
-  timer = new Countdown()
-  nav = new Nav()
+  nav = new Nav
+  slideshow = new Slideshow

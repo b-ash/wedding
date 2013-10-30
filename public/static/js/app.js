@@ -147,18 +147,20 @@ window.require.register("coffee/countdown", function(exports, require, module) {
   
 });
 window.require.register("coffee/index", function(exports, require, module) {
-  var $, Countdown, Nav;
+  var $, Countdown, Nav, Slideshow;
 
   Countdown = require('./countdown');
 
   Nav = require('./nav');
 
+  Slideshow = require('./slideshow');
+
   $ = jQuery;
 
   $(function() {
-    var nav, timer;
-    timer = new Countdown();
-    return nav = new Nav();
+    var nav, slideshow;
+    nav = new Nav;
+    return slideshow = new Slideshow;
   });
   
 });
@@ -191,5 +193,24 @@ window.require.register("coffee/nav", function(exports, require, module) {
   })();
 
   module.exports = Nav;
+  
+});
+window.require.register("coffee/slideshow", function(exports, require, module) {
+  var init;
+
+  init = function() {
+    var opts;
+    opts = {
+      auto: false,
+      pager: true,
+      nav: true,
+      speed: 500,
+      maxwidth: 550,
+      namespace: "centered-btns"
+    };
+    return $('#slideshow').responsiveSlides(opts);
+  };
+
+  module.exports = init;
   
 });

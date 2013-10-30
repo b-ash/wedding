@@ -1,6 +1,9 @@
 @import nib
 @import constants
 
+html, body
+  height: 100%
+
 body
   background-color: bgColor
 
@@ -18,11 +21,16 @@ body
     text-align: center
 
   .splash-photo
-    height: 311px  // 500px
+    padding: 30%
+    width: 40%
+    overflow: hidden
+    position: relative
 
-    // Remove
-    background-color: #f6f6f6
-    padding-top: 289px
+    img
+      position: absolute
+      top: -10%
+      left: 0
+      width: 100%
 
   .name-and-date
     height: 100px
